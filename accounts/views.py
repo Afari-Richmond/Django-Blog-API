@@ -4,7 +4,7 @@ from .serializers import RegisterSerializer
 from rest_framework import status
 
 
-def registerView(APIView):
+class RegisterView(APIView):
     def post(self, request):
         try:     #a try exception block to handle errors
             data = request.data #get the data from the user
