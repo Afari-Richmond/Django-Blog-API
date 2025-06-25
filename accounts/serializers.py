@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 
 
 class RegisterSerializer(serializers.Serializer):
-    firstname = serializers.CharField()
-    lastname = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
     username = serializers.CharField()
     password = serializers.CharField()
 
@@ -19,9 +19,9 @@ class RegisterSerializer(serializers.Serializer):
     
     def create(self, validated_data):
         user = User.objects.create(
-            firstname = validated_data['firstname'],
-            lastname =  validated_data['lastname'],
-            username = validated_data['username']
+            first_name = validated_data['first_name'],
+            last_name =  validated_data['last_name'],
+            username = validated_data['username'].lower()
         )
 
         user.set_password(validated_data['password'])
