@@ -25,7 +25,8 @@ class BlogView(APIView):
                 # retrieves the actual value of search
                 search = request.GET.get("search")
                 # filters to check if the previously fetched
-                blogs = blogs.filter(Q(title_icontains=search) | Q(blogtext_icontains=search))
+                blogs = blogs.filter(
+                    Q(title_icontains=search) | Q(blogtext_icontains=search))
                 # data has the title or body as the value in the search field
 
             serializer = BlogSerializer(blogs, many=True)
@@ -69,3 +70,45 @@ class BlogView(APIView):
                 'data': {},
                 'message': 'Something Went Wrong'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        try:
+            data = request.data
+            blog = Blog.objects.filter(uid=data.get('uid'))
+
+            if not blog.exists():
+                return Response({
+                    'data': {},
+                    'message': 'invalid blog'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if request.user != blog[0].user:
+                return Response({
+                    'data': {},
+                    'message': 'you are not authorized to do this'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = BlogSerializer(blog[0], data=data, partial=True)
+
+            
+            if not serializer.is_valid():
+                return Response({
+                    'data': serializer.errors,
+                    'message': 'Something Went Wrong'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            return Response({
+                'data': serializer.data,
+                'message': 'blog updated successfully'  # and return a success message
+
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:  # catch unexpeted errors
+            print(e)
+            return Response({
+                'data': {},
+                'message': 'Something Went Wrong'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+            
