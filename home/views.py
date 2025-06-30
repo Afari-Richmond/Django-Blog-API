@@ -6,10 +6,34 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from .models import Blog
+
 
 class BlogView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+
+
+
+    def get(self, request):
+        try:
+            blogs = Blog.objects.filter(user = request.user)
+            serializer = BlogSerializer(blogs, many=True)
+
+            return Response({
+                'data': serializer.data,
+                'message': 'blogs fetched successfully'  # and return a success message
+
+            }, status=status.HTTP_201_CREATED)
+        
+        except Exception as e:  # catch unexpeted errors
+            print(e)
+            return Response({
+                'data': {},
+                'message': 'Something Went Wrong'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
 
     def post(self, request):
         try:
